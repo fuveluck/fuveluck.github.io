@@ -1,16 +1,139 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang = "en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Convertation
+    </title>
+    
+    <style>
+        * {
+          box-sizing: border-box;
+        }
+        .column {
+          float: left;
+          width: 50%;
+          padding: 10px;
+          height: 300px; /* Should be removed. Only for demonstration */
+        }
+        
+        .row:after {
+          content: "";
+          display: table;
+          clear: both;
+        }
+
+        .button_operator {
+            background-color: #d5dbd6; /* Green */
+            border: 2px solid black;
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            font-size: 16px;
+            margin-top: 2px;
+            margin-bottom: 2px;
+            margin-right: 2px;
+            margin-left: 2px;
+        }
+
+        .button_operator:active{
+            background-color: rgb(132, 132, 132);
+        }
+
+        </style>
+
+        <link href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" rel="stylesheet">
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</head>
+    
+<header>
+    FOL
+</header>
+<br>
 <body>
-<header>FOL</header>
-<br>
-<textarea id="freedform" name="freeform" rows="4" cols="50"></textarea><br><br>
-  <input type="Submit" value="Submit">
-</form>
-<br><br>
-  <header>PROLOG</header>
-  <label for="freedform"></label>
-<br>
-<textarea id="freedform" name="freeform" rows="4" cols="50">
-</textarea><br><br>
+<div id = 'divMathOutput'></div>
+<div class="row">
+    <div class="column">
+        FOL:
+        <br>
+        <textarea id="formula_fol" name="freeform" rows="4" cols="50">...</textarea><br><br>
+        <button type="button" onclick="myFunction()">Submit</button>
+        </form>
+        <br><br>
+        <header>
+            PROLOG
+        </header>
+        <label for="freedform"></label>
+        <br>
+        <textarea id="formula_prolog" name="freeform" rows="4" cols="50">
+        </textarea>
+    </div>
+    <div class="column">
+        <button class="button_operator" onclick="pasteOperatorAND()">AND</button>
+        <button class="button_operator" onclick="pasteOperatorOR()">OR</button>
+        <button class="button_operator" onclick="pasteOperatorIM()">IM</button>
+        <br><br>
+        <button class="button_operator" onclick="pasteBracketL()">(</button>
+        <button class="button_operator" onclick="pasteBracketR()">)</button>
+        <!-- <button class="button_operator" onclick="pasteOperatorNEG()">NEG</button> -->
+    </div>
+  </div> 
 </body>
+<script>
+        // window.addEventListener('DOMContentLoaded',()=>{
+        //         let divMathOutput = document.querySelector('#divMathOutput');
+        //         divMathOutput.innerHTML = katex.renderToString("$\\land$");
+        // });
+
+
+    function myFunction(){
+        var fol = document.getElementById("formula_fol").value;
+        var prolog = fol.toLowerCase();
+        var answer = prolog.replace(" and ",",");
+        var answer = prolog.replace(" or ",";");
+        var answer = prolog.replace(" im ",":-");
+        // answer.forEach(c =>{
+        //         if (c == ")"){c = c+".";}
+        //  });
+        //  splitArray.forEach(s => {
+        //      console.log(s);
+        //      if(s == "and") {prolog.replace("and",",");}//continue;?
+            //  if(s == "or") {s =  ","; }
+            //  if(s == "im") {s =  ":-"; }
+            //  s.forEach(c =>{
+            //      if (c == ")"){s = s+".";}
+            //  });
+
+        // });
+        document.getElementById("formula_prolog").innerHTML = answer;
+        console.log(fol);
+    }
+    function pasteOperatorAND(){
+        var operator = " and "
+        document.getElementById("formula_fol").innerHTML = operator;
+    }
+    function pasteOperatorOR(){
+        var operator = " or "
+        document.getElementById("formula_fol").innerHTML = operator;
+    }
+    function pasteOperatorIM(){
+        var operator = " im "
+        document.getElementById("formula_fol").innerHTML = operator;
+    }
+    function pasteOperatorNEG(){
+        var operator = " neg "
+        document.getElementById("formula_fol").innerHTML = operator;
+    }
+    function pasteBracketL(){
+        var operator = "("
+        document.getElementById("formula_fol").innerHTML = operator;
+    }
+    function pasteBracketR(){
+        var operator = ")"
+        document.getElementById("formula_fol").innerHTML = operator;
+    }
+</script>
 </html>
