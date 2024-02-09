@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
-        Convertation
+        Converter First-order logic Horn clauses to Prolog
     </title>
     
     <style>
@@ -43,10 +43,25 @@
         }
 
         </style>
-
-        <link href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" rel="stylesheet">
-        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctmUb0ZY0l8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" integrity="sha384-+VBxd3r6XgURycqtZ117nYw44OOcIax56Z4dCRWbxyPt0Koah1uHoK0o4+/RRE05" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          // customised options
+          // • auto-render specific keys, e.g.:
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          // • rendering keys, e.g.:
+          throwOnError : false
+        });
+    });
+</script>
 </head>
     
 <header>
@@ -54,13 +69,13 @@
 </header>
 <br>
 <body>
-<div id = 'divMathOutput'></div>
 <div class="row">
     <div class="column">
-        FOL:
+        Definition of First order logic with Horn clauses model:
         <br>
-        <textarea id="formula_fol" name="freeform" rows="4" cols="50">...</textarea><br><br>
-        <button type="button" onclick="myFunction()">Submit</button>
+        <textarea id="formula_fol" name="formula_fol" rows="4" cols="50"></textarea><br><br>
+        <button type="button" onclick="Submit()">Submit</button>
+        <button type="button" onclick="Clear()">Clear</button>
         </form>
         <br><br>
         <header>
@@ -72,68 +87,109 @@
         </textarea>
     </div>
     <div class="column">
-        <button class="button_operator" onclick="pasteOperatorAND()">AND</button>
-        <button class="button_operator" onclick="pasteOperatorOR()">OR</button>
-        <button class="button_operator" onclick="pasteOperatorIM()">IM</button>
+        <!--
+            <button class="button_operator" onclick="pasteOperatorAND()">$\land$</button>
+        -->
+        <button class="button_operator" onclick="pasteOperatorOR()">$\lor$</button>
+        <button class="button_operator" onclick="pasteOperatorIM()">$\Rightarrow$</button>
         <br><br>
+        <button class="button_operator" onclick="pasteOperatorNEG()">$\neg$</button>
         <button class="button_operator" onclick="pasteBracketL()">(</button>
         <button class="button_operator" onclick="pasteBracketR()">)</button>
-        <!-- <button class="button_operator" onclick="pasteOperatorNEG()">NEG</button> -->
     </div>
   </div> 
 </body>
 <script>
-        // window.addEventListener('DOMContentLoaded',()=>{
-        //         let divMathOutput = document.querySelector('#divMathOutput');
-        //         divMathOutput.innerHTML = katex.renderToString("$\\land$");
-        // });
+        /*
+        onkeyup="make_latex(this.value)"
+        function make_latex(value){
+            const operators = ["and", "or", "imp", "neg"];
+            document.getElementById("formula_fol").value = value;
+            const splitSpace = value.split(" ");
+            splitSpace.forEach(element => {
+                if(operators.includes(element) ){
+                    element = "$\land$";
+                }
+            });
+            renderMathInElement(document.getElementById("formula_fol").value);
+        };
+        */
 
 
-    function myFunction(){
-        var fol = document.getElementById("formula_fol").value;
-        var prolog = fol.toLowerCase();
-        var answer = prolog.replace(" and ",",");
-        var answer = prolog.replace(" or ",";");
-        var answer = prolog.replace(" im ",":-");
-        // answer.forEach(c =>{
-        //         if (c == ")"){c = c+".";}
-        //  });
-        //  splitArray.forEach(s => {
-        //      console.log(s);
-        //      if(s == "and") {prolog.replace("and",",");}//continue;?
-            //  if(s == "or") {s =  ","; }
-            //  if(s == "im") {s =  ":-"; }
-            //  s.forEach(c =>{
-            //      if (c == ")"){s = s+".";}
-            //  });
 
-        // });
-        document.getElementById("formula_prolog").innerHTML = answer;
-        console.log(fol);
+    function Clear(){
+        var text = document.getElementById("formula_fol");
+        text.value = " "
+    }
+
+    function Submit(){
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
+
+        var variables = ['x','y','z'];
+
+        var answer = document.getElementById("formula_prolog");
+
+        formula = formula.toLowerCase();
+
+        let program = formula.split("\n").map(sentence => {
+            let prolog_sentence = sentence.split(" ").map(entity =>{
+                if (entity.includes(variables)){return entity.toUpperCase();} 
+                else{return entity;}
+            }).join(" ");   
+            if(prolog_sentence.includes(" im ")){
+                let parts = prolog_sentence.split(" im "); 
+                let head = parts[1];
+                let body = parts[0];
+                prolog_sentence = head + ":-" + "\n" + "   " + body + ".";
+            }
+            return prolog_sentence;
+        }).join("\n");;
+
+        program = program.replace(" or ", ",");
+        /*
+        formula = formula.replace(" and ", ",");
+        formula = formula.replace(" im ", ":-");
+        */
+        program = program.replace(" neg ", "\\+");
+
+        answer.value = program;
     }
     function pasteOperatorAND(){
-        var operator = " and "
-        document.getElementById("formula_fol").innerHTML = operator;
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
+        var operator = " and ";
+        text.value = formula + operator;
     }
     function pasteOperatorOR(){
-        var operator = " or "
-        document.getElementById("formula_fol").innerHTML = operator;
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
+        var operator = " or ";
+        text.value = formula + operator;
     }
     function pasteOperatorIM(){
-        var operator = " im "
-        document.getElementById("formula_fol").innerHTML = operator;
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
+        var operator = " im ";
+        text.value = formula + operator;
     }
     function pasteOperatorNEG(){
-        var operator = " neg "
-        document.getElementById("formula_fol").innerHTML = operator;
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
+        var operator = " neg ";
+        text.value = formula + operator;
     }
     function pasteBracketL(){
-        var operator = "("
-        document.getElementById("formula_fol").innerHTML = operator;
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
+        var operator = "(";
+        text.value = formula + operator;
     }
     function pasteBracketR(){
+        var text = document.getElementById("formula_fol");
+        var formula = text.value;
         var operator = ")"
-        document.getElementById("formula_fol").innerHTML = operator;
+        text.value = formula + operator;
     }
 </script>
 </html>
