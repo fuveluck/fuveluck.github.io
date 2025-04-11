@@ -363,6 +363,7 @@ math-field::part(menu-toggle) {
     cursor: default;
     box-sizing: border-box;
     position: relative;
+    max-width: 1870px;
 }
 
 
