@@ -27,11 +27,15 @@ body {
     padding: 15px 20px;
     justify-content: space-between;
     align-items: center;
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     z-index: 1;
     margin: 0;    
     height: auto;
     flex-wrap: wrap;
+    width: 100%;
 }
 
 .nav-button {
@@ -171,8 +175,10 @@ body {
 
 .container {
     margin: 0 auto;
-    padding: 20px;
+    padding-left: 20px;
+    padding-top: 80px;
     max-width: 100%;
+    flex-grow: 1;
 }
 
 h1 {
@@ -385,7 +391,9 @@ math-field::part(menu-toggle) {
     position: fixed;
     right: 0;
     bottom: 0;
-    flex-direction: column;    text-align: center;
+    height: 60px;
+    flex-direction: column;    
+    text-align: center;
     width: 100%;
     font-size: 1rem;
     color: #3A3A3A;
