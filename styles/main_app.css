@@ -205,7 +205,7 @@ h1 {
 .info-icon::after {
     content: attr(data-tooltip);
     position: absolute;
-    top: 10%;
+    top: 50%;
     left: 100%;
     transform: translateY(-50%);
     background-color: #3A3A3A;
@@ -216,8 +216,8 @@ h1 {
     visibility: hidden;
     transition: opacity 0.3s;
     word-wrap: break-word;
-    max-width: 150px;
-    width: auto;
+    max-width: 40vw;
+    width: max-content;
     white-space: normal;
     box-sizing: border-box;
     z-index: 2;
@@ -230,12 +230,9 @@ h1 {
 
 @media (max-width: 600px) {
     .info-icon::after {
-        max-width: 120px;
-    }
-
-    .info-icon {
-        padding: 8px 16px;
-        font-size: 12px;
+        left: 50%;
+        transform: translate(-50%, -110%);
+        max-width: 80vw;
     }
 }
 
