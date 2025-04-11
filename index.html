@@ -20,7 +20,7 @@
 <body>
 <div id="loading">Loading MathLive...</div>
 <div id="app" style="visibility: hidden;">
-    <div class="navbar">
+    <div ref="navbar" class="navbar">
         <div class="hamburger-menu" @click="toggleMenu"></div>
         <div class="nav-links" :class="{ active: menuActive }">
 <!--
@@ -39,7 +39,7 @@
             <div class="close-button" @click="toggleMenu"></div>
         </div>
     </div>
-    <div class="container">
+    <div ref="container" class="container">
         <h1>Convector from First-order Logic to Prolog</h1>
         <div class="input-section">
             <div class="label-container">
