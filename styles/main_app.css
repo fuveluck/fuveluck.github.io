@@ -295,6 +295,7 @@ math-field {
     resize: both;
     overflow: auto;
     display: block;
+    max-width: 1870px;
 }
 
 
