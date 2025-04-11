@@ -24,6 +24,8 @@ createApp({
         const queries = ref([]);
         const cnfFormulas = ref([]);
         const selectedExample = ref(null);
+        const navbar = ref(null);
+        const container = ref(null);
 
         const replaceSymbols = (input) => {
             return input
@@ -69,6 +71,8 @@ createApp({
                 }, 300);
 
                 window.addEventListener('click', handleOutsideClick);
+                adjustContainerPadding();
+                window.addEventListener('resize', adjustContainerPadding);
             } catch (mountErr) {
                 console.error("Error during mount:", mountErr);
                 alert(errorMessages.MOUNT_ERROR);
@@ -94,6 +98,11 @@ createApp({
 
         const toggleMenu = () => {
             menuActive.value = !menuActive.value;
+        };
+
+        const adjustContainerPadding = () => {
+            const navbarHeight = navbar.value.offsetHeight;
+            container.value.style.paddingTop = `${navbarHeight}px`;
         };
 
         const openLink = () => {
@@ -346,6 +355,8 @@ createApp({
             logicInput,
             menuActive,
             toggleMenu,
+            navbar,
+            container,
             //showExamples,
             //toggleExamples,
             showExample,
