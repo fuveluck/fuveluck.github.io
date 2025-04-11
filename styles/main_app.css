@@ -5,9 +5,9 @@
 
 body {
     background-color: #F6F1EB;
-    padding: 0;
+    padding-bottom: 60px;
     margin: 0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -385,8 +385,7 @@ math-field::part(menu-toggle) {
     position: fixed;
     right: 0;
     bottom: 0;
-    height: 8%;
-    text-align: center;
+    flex-direction: column;    text-align: center;
     width: 100%;
     font-size: 1rem;
     color: #3A3A3A;
