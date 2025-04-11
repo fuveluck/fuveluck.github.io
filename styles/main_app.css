@@ -29,8 +29,9 @@ body {
     align-items: center;
     position: relative;
     z-index: 1;
-    margin: 0;
-    height: 60px;
+    margin: 0;    
+    height: auto;
+    flex-wrap: wrap;
 }
 
 .nav-button {
@@ -71,6 +72,7 @@ body {
 .nav-links {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 768px) {
@@ -129,8 +131,12 @@ body {
         display: block;
     }
 
-}
+    .navbar{
+        height: 60px;
+    }
 
+}
+/*
 .example-buttons {
     display: flex;
     flex-direction: column;
@@ -154,7 +160,7 @@ body {
     border: 2px solid #A49689;
     color: #F6F1EB;
 }
-
+*/
 
 .bar {
     height: 4px;
