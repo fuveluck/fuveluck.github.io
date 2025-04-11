@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manual: First-order Logic to Prolog Converter</title>
+
+    <!-- MathLive -->
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
+    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
+    <script src="https://unpkg.com/mathlive"></script>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <!-- Your Styles -->
+    <link rel="stylesheet" href="manual.css" />
+    <script type="module" src="manual.js" defer></script>
+</head>
+<body>
+<div id="app">
+    <div class="manual-container">
+        <h1>Manual: Using the First-order Logic to Prolog Converter</h1>
+
+        <section>
+            <h2>Overview</h2>
+            <p>This converter allows you to input logical expressions in first-order logic and convert them into Prolog syntax.</p>
+            <p>It also supports LaTeX rendering for easy input of formulas.</p>
+        </section>
+
+        <section>
+            <h2>Getting Started</h2>
+            <p>Follow these steps to use the converter:</p>
+            <ul>
+                <li>Navigate to the input area, where you can type or insert logic symbols using the available buttons.</li>
+                <li>Click the "Convert" button to transform your expression into Prolog syntax.</li>
+                <li>View the Prolog output in the result area below the input field.</li>
+                <li>If needed, click "Clear" to reset the input field.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Input Field</h2>
+            <p>The input field supports LaTeX-like syntax for logical operations. You can also use the provided buttons to insert common logical symbols:</p>
+            <ul>
+                <li><code>\Rightarrow</code>: Implication (rendered as <span class="latex-text">$$\Rightarrow$$</span>)</li>
+                <li><code>\land</code>: Conjunction (rendered as <span class="latex-text">`\land`</span>)</li>
+                <li><code>\lor</code>: Disjunction (rendered as <span class="latex-text">`\lor`</span>)</li>
+                <li><code>\neg</code>: Negation (rendered as <span class="latex-text">`\neg`</span>)</li>
+                <li><code>\exists</code>: Existential quantifier (rendered as <span class="latex-text">`\exists`</span>)</li>
+                <li><code>\forall</code>: Universal quantifier (rendered as <span class="latex-text">`\forall`</span>)</li>
+                <li><code>\top</code>: Top (rendered as <span class="latex-text">`\top`</span>)</li>
+                <li><code>\bot</code>: Bottom (rendered as <span class="latex-text">`\bot`</span>)</li>
+                <li>Parentheses <code>( )</code> for grouping terms (rendered as <span class="latex-text">`( )`</span>).</li>
+            </ul>
+
+            <p>Here is an example of how you can input a formula:</p>
+            <math-field id="logic-input" placeholder="Enter formula" virtual-keyboard="on"></math-field>
+        </section>
+
+        <section>
+            <h2>Output Field</h2>
+            <p>The Prolog output field will display the result in Prolog syntax after clicking "Convert." You can copy the output by clicking the copy button next to the output area.</p>
+            <math-field id="output-field" placeholder="Prolog Output" virtual-keyboard="off" read-only="true"></math-field>
+        </section>
+
+        <footer>
+            <p>For further support, contact the author at <a href="mailto:anastasiia.muzhychuk@gmail.com">anastasiia.muzhychuk@gmail.com</a>.</p>
+        </footer>
+    </div>
+</div>
+</body>
+</html>
