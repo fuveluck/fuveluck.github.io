@@ -26,7 +26,7 @@ createApp({
         const navbar = ref(null);
         const container = ref(null);
 
-        const replaceSymbols = (input) => {
+        /*const replaceSymbols = (input) => {
             return input
                 .replace(/\s+/g, '')
                 .replace(/\\neg/g, '¬')
@@ -39,7 +39,7 @@ createApp({
                 .replace(/\\bot/g, '⊥')
                 .replace(/([A-Z])/g, ' $1');
         };
-
+*/
         onMounted(() => {
             try {
                 import("//unpkg.com/mathlive?module").then((mathlive) => {
@@ -201,16 +201,21 @@ createApp({
                     line = line.trim();
                     inputFormula.value = ''
                     if (line !== '') {
-                        inputFormula.value = replaceSymbols(line);
-                        //console.log("Formula with special symbols", inputFormula.value);
+                        //maybe better with = !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        inputFormula.value += line
+                            .replace(/(?<!\\)([A-Z])/g, ' $1')
+                            .replace(/\\left\(/g, '(')
+                            .replace(/\\right\)/g, ')')
+                        //inputFormula.value = replaceSymbols(line);
+                        console.log("Formula with special symbols", inputFormula.value);
                         parseAndConvert();
-                        console.log("CNF formula",cnfResult.value);
+                        //console.log("CNF formula",cnfResult.value);
                         cnfFormulas.value.push({
                             original: line,
                             steps: [...steps.value],
                             cnf: cnfResult.value
                         });
-                        console.log("What will be send",cnfFormulas);
+                        //console.log("What will be send",cnfFormulas);
                         try {
                             const prologProgram = {
                                 facts,
@@ -218,7 +223,7 @@ createApp({
                                 queries
                             }
                             convertLogicToHorn(cnfResult, prologProgram);
-                            console.log("Your formula be in Prolog:",[facts.value, hrules.value, queries.value.join('\n')]);
+                            //console.log("Your formula be in Prolog:",[facts.value, hrules.value, queries.value.join('\n')]);
                         } catch (err) {
                             console.error('Conversion error (Horn):', err);
                             alert(errorMessages.HORN_CONVERSION_ERROR);
@@ -230,7 +235,7 @@ createApp({
                     facts.value.join('\n'),
                     hrules.value.join('\n'),
                     queries.value.join('\n')
-                ].join('\n');
+                ].filter(item => item !== '').join('\n');
                 console.log("Result of all formul be processed", result);
                 prologOutput.value = result;
                 console.log("---------- КІНЕЦЬ КОНВЕРТАЦІЇ ----------");

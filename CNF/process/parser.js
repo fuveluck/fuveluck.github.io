@@ -1,7 +1,7 @@
 import { errorMessages, getErrorMessage } from '../../core/errors.js';
 
 export function parseFormula(tokens) {
-    //console.log('Tokens:', tokens.value);
+    console.log('Tokens:', tokens.value);
     const state = { position: 0 };
     try {
         if (!tokens.value || tokens.value.length === 0) {
@@ -35,8 +35,9 @@ export function parseFormula(tokens) {
 }
 
 function parseImplication(tokens, state) {
+    //console.log('Tokens:', tokens[state.position]);
     const left = parseDisjunction(tokens, state);
-    if (state.position < tokens.length && tokens[state.position] === '⇒') {
+    if (state.position < tokens.length && tokens[state.position] === '\\Rightarrow') {
         state.position++;
         const right = parseImplication(tokens, state);
         return {
@@ -50,7 +51,7 @@ function parseImplication(tokens, state) {
 
 function parseDisjunction(tokens, state) {
     let left = parseConjunction(tokens, state);
-    while (state.position < tokens.length && tokens[state.position] === '∨') {
+    while (state.position < tokens.length && tokens[state.position] === '\\lor') {
         state.position++;
         const right = parseConjunction(tokens, state);
         left = {
@@ -64,7 +65,7 @@ function parseDisjunction(tokens, state) {
 
 function parseConjunction(tokens, state) {
     let left = parseQuantifier(tokens, state);
-    while (state.position < tokens.length && tokens[state.position] === '∧') {
+    while (state.position < tokens.length && tokens[state.position] === '\\land') {
         state.position++;
         const right = parseQuantifier(tokens, state);
         left = {
@@ -79,7 +80,7 @@ function parseConjunction(tokens, state) {
 function parseQuantifier(tokens, state) {
     try {
         if (state.position < tokens.length) {
-            if (tokens[state.position] === '∀') {
+            if (tokens[state.position] === '\\forall') {
                 state.position++;
                 if (state.position < tokens.length && /^[s-z][0-9]*$/.test(tokens[state.position])) {
                     const variable = tokens[state.position];
@@ -94,7 +95,7 @@ function parseQuantifier(tokens, state) {
                 throw new Error(errorMessages.FORALL_NEEDS_VAR);
             }
 
-            if (tokens[state.position] === '∃') {
+            if (tokens[state.position] === '\\exists') {
                 state.position++;
                 if (state.position < tokens.length && /^[s-z][0-9]*$/.test(tokens[state.position])) {
                     const variable = tokens[state.position];
@@ -109,7 +110,6 @@ function parseQuantifier(tokens, state) {
                 throw new Error(errorMessages.EXISTS_NEEDS_VAR);
             }
         }
-
         return parseNegation(tokens, state);
     } catch (e) {
         if (e instanceof Error && !e.code) {
@@ -123,7 +123,7 @@ function parseQuantifier(tokens, state) {
 }
 
 function parseNegation(tokens, state) {
-        if (state.position < tokens.length && tokens[state.position] === '¬') {
+        if (state.position < tokens.length && tokens[state.position] === '\\neg') {
             state.position++;
             const formula = parseNegation(tokens, state);
             return {
@@ -140,6 +140,7 @@ function parseAtomicFormula(tokens, state) {
         if (state.position < tokens.length) {
             if (tokens[state.position] === '(') {
                 state.position++;
+                console.log("My atomic formula:", tokens[state.position]);
                 const formula = parseImplication(tokens, state);
                 console.log(formula);
 
@@ -153,7 +154,7 @@ function parseAtomicFormula(tokens, state) {
                 return formula;
             }
 
-            if (tokens[state.position] === '⊤' || tokens[state.position] === '⊥') {
+            if (tokens[state.position] === '\\top' || tokens[state.position] === '\\bot') {
                 const predicate = tokens[state.position];
                 state.position++;
 
@@ -163,6 +164,13 @@ function parseAtomicFormula(tokens, state) {
                     name: predicate,
                     args: []
                 };
+            }
+
+            //not need use parentheses after negation before quantifier
+            if (tokens[state.position] === '\\exists' || tokens[state.position] === '\\forall') {
+                const formula = parseQuantifier(tokens, state);
+                console.log(formula);
+                return formula;
             }
 
             if (/^[A-Z][0-9]*$/.test(tokens[state.position])) {
@@ -311,7 +319,7 @@ function checkForLogicalConnective(tokens, state) {
         }
         if (state.position < tokens.length) {
             const token = tokens[state.position];
-            const logicalConnectives = ['∧', '∨', '⇒', ')', '¬'];
+            const logicalConnectives = ['\\land', '\\lor', '\\Rightarrow',')', '\\neg'];
             if (!logicalConnectives.includes(token) && token !== undefined) {
                 throw {
                     code: 'Please enter a valid logical elements. Found:',

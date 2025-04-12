@@ -16,7 +16,7 @@ export function convertToCNF(ast, state) {
         formula: astToString(withoutImplications)
     });
 
-    //console.log("Formula after implication", withoutImplications)
+    console.log("Formula after implication", withoutImplications)
 
     const negationsInside = pushNegationsInward(state, withoutImplications);
     state.steps.value.push({
@@ -24,7 +24,7 @@ export function convertToCNF(ast, state) {
         formula: astToString(negationsInside)
     });
 
-    //console.log("Formula after negation", negationsInside)
+    console.log("Formula after negation", negationsInside)
 
     const standardizeVariable = standardizeVariables(state, negationsInside);
     state.steps.value.push({
@@ -32,7 +32,7 @@ export function convertToCNF(ast, state) {
         formula: astToString(standardizeVariable)
     });
 
-    //console.log("Formula after standard", standardizeVariable)
+    console.log("Formula after standard", standardizeVariable)
 
 
     const prenexForm = moveToPrenexForm(state, standardizeVariable);
@@ -41,7 +41,7 @@ export function convertToCNF(ast, state) {
         formula: astToString(prenexForm)
     });
 
-    //console.log("Formula after quantifiers first", prenexForm)
+    console.log("Formula after quantifiers first", prenexForm)
 
 
     const skolemizedForm = skolemize(state, prenexForm);
@@ -50,24 +50,20 @@ export function convertToCNF(ast, state) {
         formula: astToString(skolemizedForm)
     });
 
-    //console.log("Formula after skolemization", skolemizedForm)
+    console.log("Formula after skolemization", skolemizedForm)
 
-    const cnfForm = simplifyWithTrueFalse(state, skolemizedForm);
+    const cnfForm = distributeDisjunctionsOverConjunctions(state, skolemizedForm);
     state.steps.value.push({
         description: 'Conversion to conjunctive normal form',
         formula: astToString(cnfForm)
     });
 
-    //console.log("Final CNF", cnfForm)
+    console.log("Final CNF", cnfForm)
 
     //Відразу зміна до відповідності ситаксису прологу символів
     const prologForm = symbolChange(cnfForm);
-    state.steps.value.push({
-        description: 'Symbol replacement',
-        formula: astToString(prologForm)
-    });
 
-    //console.log("Symbol replacement", prologForm)
+    console.log("Symbol replacement", prologForm)
 
     state.cnfResult.value = formatCNF(prologForm);
 }
@@ -137,10 +133,10 @@ function pushNegationsInward(state, ast) {
                     return pushNegationsInward(state, formula.formula);
 
                 case 'predicate':
-                    if (formula.name === '⊤') {
-                        return { type: 'predicate', name: '⊥', args: [] };
-                    } else if (formula.name === '⊥') {
-                        return { type: 'predicate', name: '⊤', args: [] };
+                    if (formula.name === '\\top') {
+                        return { type: 'predicate', name: '\\bot', args: [] };
+                    } else if (formula.name === '\\bot') {
+                        return { type: 'predicate', name: '\\top', args: [] };
                     } else {
                         return {
                             type: 'negation',
@@ -461,188 +457,99 @@ function generateSkolemFunctionName(state) {
     }
 }
 
-function simplifyWithTrueFalse(state, ast) {
-    //console.log(ast);
-    const simplified = applyTruthValueSimplifications(state, ast);
-    //console.log(simplified);
-    const withoutImplications = eliminateImplications(simplified, state);
-    //console.log(withoutImplications);
-    const negationsInward = pushNegationsInward(state, withoutImplications);
-    //console.log(negationsInward);
-    const finalCNF = distributeDisjunctionsOverConjunctions(state, negationsInward);
-    ///console.log(finalCNF);
-    return finalCNF;
-}
-
-function applyTruthValueSimplifications(state, ast) {
-    if (!ast) return null;
-
-    switch (ast.type) {
-        case 'conjunction':
-            const leftConj = applyTruthValueSimplifications(state, ast.left);
-            const rightConj = applyTruthValueSimplifications(state, ast.right);
-
-            if ((leftConj.type === 'predicate' && leftConj.name === '⊥') ||
-                (rightConj.type === 'predicate' && rightConj.name === '⊥')) {
-                return { type: 'predicate', name: '⊥', args: [] };
-            }
-
-            if (leftConj.type === 'predicate' && leftConj.name === '⊤') {
-                return rightConj;
-            }
-            if (rightConj.type === 'predicate' && rightConj.name === '⊤') {
-                return leftConj;
-            }
-
-            return { type: 'conjunction', left: leftConj, right: rightConj };
-
-        case 'disjunction':
-            const leftDisj = applyTruthValueSimplifications(state, ast.left);
-            const rightDisj = applyTruthValueSimplifications(state, ast.right);
-
-            if ((leftDisj.type === 'predicate' && leftDisj.name === '⊤') ||
-                (rightDisj.type === 'predicate' && rightDisj.name === '⊤')) {
-                return { type: 'predicate', name: '⊤', args: [] };
-            }
-
-            if (leftDisj.type === 'predicate' && leftDisj.name === '⊥') {
-                return rightDisj;
-            }
-            if (rightDisj.type === 'predicate' && rightDisj.name === '⊥') {
-                return leftDisj;
-            }
-
-            if (JSON.stringify(leftDisj) === JSON.stringify(rightDisj)) {
-                return leftDisj;
-            }
-
-            return { type: 'disjunction', left: leftDisj, right: rightDisj };
-
-        case 'implication':
-            const leftImpl = applyTruthValueSimplifications(state, ast.left);
-            const rightImpl = applyTruthValueSimplifications(state, ast.right);
-
-            if (leftImpl.type === 'predicate' && leftImpl.name === '⊤') {
-                return rightImpl;
-            }
-
-            if (leftImpl.type === 'predicate' && leftImpl.name === '⊥') {
-                return { type: 'predicate', name: '⊤', args: [] };
-            }
-
-            if (rightImpl.type === 'predicate' && rightImpl.name === '⊤') {
-                return { type: 'predicate', name: '⊤', args: [] };
-            }
-
-            if (rightImpl.type === 'predicate' && rightImpl.name === '⊥') {
-                return { type: 'negation', formula: leftImpl };
-            }
-
-            return { type: 'implication', left: leftImpl, right: rightImpl };
-
-        case 'negation':
-            const innerFormula = applyTruthValueSimplifications(state, ast.formula);
-
-            if (innerFormula.type === 'predicate' && innerFormula.name === '⊤') {
-                return { type: 'predicate', name: '⊥', args: [] };
-            }
-
-            if (innerFormula.type === 'predicate' && innerFormula.name === '⊥') {
-                return { type: 'predicate', name: '⊤', args: [] };
-            }
-
-            if (innerFormula.type === 'negation') {
-                return applyTruthValueSimplifications(state, innerFormula.formula);
-            }
-
-            return { type: 'negation', formula: innerFormula };
-
-        case 'universal':
-            return {
-                type: 'universal',
-                variable: ast.variable,
-                formula: applyTruthValueSimplifications(state, ast.formula)
-            };
-
-        case 'existential':
-            return {
-                type: 'existential',
-                variable: ast.variable,
-                formula: applyTruthValueSimplifications(state, ast.formula)
-            };
-
-        default:
-            return ast;
-    }
-}
-
 function distributeDisjunctionsOverConjunctions(state, ast) {
     if (!ast) return null;
 
     switch (ast.type) {
         case 'conjunction':
-            return {
-                type: 'conjunction',
-                left: distributeDisjunctionsOverConjunctions(state, ast.left),
-                right: distributeDisjunctionsOverConjunctions(state, ast.right)
-            };
+            const leftConj = distributeDisjunctionsOverConjunctions(state, ast.left);
+            const rightConj = distributeDisjunctionsOverConjunctions(state, ast.right);
 
-        case 'universal':
-        case 'existential':
-            return {
-                type: ast.type,
-                variable: ast.variable,
-                formula: distributeDisjunctionsOverConjunctions(state, ast.formula)
-            };
+            // φ ∧ ⊥ ≡ ⊥
+            if ((leftConj.type === 'predicate' && leftConj.name === '\\bot') ||
+                (rightConj.type === 'predicate' && rightConj.name === '\\bot')) {
+                return {type: 'predicate', name: '\\bot', args: []};
+            }
 
-        case 'disjunction': {
-            const left = distributeDisjunctionsOverConjunctions(state, ast.left);
-            const right = distributeDisjunctionsOverConjunctions(state, ast.right);
+            // φ ∧ ⊤ ≡ φ
+            if (leftConj.type === 'predicate' && leftConj.name === '\\top') {
+                return rightConj;
+            }
+            if (rightConj.type === 'predicate' && rightConj.name === '\\top') {
+                return leftConj;
+            }
 
-            if (left.type === 'conjunction') {
+            // φ ∧ ¬φ ≡ ⊥
+            if (leftConj.type === 'negation' && JSON.stringify(leftConj.formula) === JSON.stringify(rightConj) ||
+                rightConj.type === 'negation' && JSON.stringify(rightConj.formula) === JSON.stringify(leftConj)) {
+                return {type: 'predicate', name: '\\bot', args: []};
+            }
+
+            return {type: 'conjunction', left: leftConj, right: rightConj};
+
+        case 'disjunction':
+            const leftDisj = distributeDisjunctionsOverConjunctions(state, ast.left);
+            const rightDisj = distributeDisjunctionsOverConjunctions(state, ast.right);
+
+            // φ ∨ ⊤ ≡ ⊤
+            if ((leftDisj.type === 'predicate' && leftDisj.name === '\\top') ||
+                (rightDisj.type === 'predicate' && rightDisj.name === '\\top')) {
+                return {type: 'predicate', name: '\\top', args: []};
+            }
+
+            // φ ∨ ⊥ ≡ φ
+            if (leftDisj.type === 'predicate' && leftDisj.name === '\\bot') {
+                return rightDisj;
+            }
+            if (rightDisj.type === 'predicate' && rightDisj.name === '\\bot') {
+                return leftDisj;
+            }
+
+            // φ ∨ ¬φ ≡ ⊤
+            if (leftDisj.type === 'negation' && JSON.stringify(leftDisj.formula) === JSON.stringify(rightDisj) ||
+                rightDisj.type === 'negation' && JSON.stringify(rightDisj.formula) === JSON.stringify(leftDisj)) {
+                return {type: 'predicate', name: '\\top', args: []};
+            }
+
+            // φ∨φ≡φ
+            if (JSON.stringify(leftDisj) === JSON.stringify(rightDisj)) {
+                return leftDisj;
+            }
+
+            // φ ∨ (ψ ∧ θ) ≡ (φ ∨ ψ) ∧ (φ ∨ θ)
+            if (rightDisj.type === 'conjunction') {
                 return {
                     type: 'conjunction',
                     left: distributeDisjunctionsOverConjunctions(state, {
                         type: 'disjunction',
-                        left: left.left,
-                        right: right
+                        left: leftDisj,
+                        right: rightDisj.left
                     }),
                     right: distributeDisjunctionsOverConjunctions(state, {
                         type: 'disjunction',
-                        left: left.right,
-                        right: right
+                        left: leftDisj,
+                        right: rightDisj.right
                     })
                 };
             }
-
-            if (right.type === 'conjunction') {
+            //(ψ ∧ θ) ∨ φ ≡ (ψ ∨ φ) ∧ (θ ∨ φ)
+            if (leftDisj.type === 'conjunction') {
                 return {
                     type: 'conjunction',
                     left: distributeDisjunctionsOverConjunctions(state, {
                         type: 'disjunction',
-                        left: left,
-                        right: right.left
+                        left: leftDisj.left,
+                        right: rightDisj
                     }),
                     right: distributeDisjunctionsOverConjunctions(state, {
                         type: 'disjunction',
-                        left: left,
-                        right: right.right
+                        left: leftDisj.right,
+                        right: rightDisj
                     })
                 };
             }
 
-            return {
-                type: 'disjunction',
-                left,
-                right
-            };
-        }
-
-        case 'negation':
-            if (ast.formula.type === 'negation') {
-                return distributeDisjunctionsOverConjunctions(state, ast.formula.formula);
-            }
-            return ast;
+            return {type: 'disjunction', left: leftDisj, right: rightDisj};
 
         default:
             return ast;
