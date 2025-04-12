@@ -12,7 +12,6 @@ createApp({
         const logicInput = ref('');
         const prologOutput = ref('');
         const menuActive = ref(false);
-        //const showExamples = ref(false);
         const inputFormula = ref('');
         const steps = ref([]);
         const cnfResult = ref('');
@@ -30,8 +29,6 @@ createApp({
         const replaceSymbols = (input) => {
             return input
                 .replace(/\s+/g, '')
-                .replace(/\\left\(/g, '\\(')
-                .replace(/\\right\)/g, '\\)')
                 .replace(/\\neg/g, '¬')
                 .replace(/\\forall/g, '∀')
                 .replace(/\\exists/g, '∃')
@@ -46,7 +43,9 @@ createApp({
         onMounted(() => {
             try {
                 import("//unpkg.com/mathlive?module").then((mathlive) => {
-                    try {
+                    const mf = document.getElementById('logic-input');
+                    mf.mathVirtualKeyboardPolicy = 'manual';
+                   try {
                         mathlive.renderMathInDocument();
                     } catch (renderErr) {
                         console.error("Error rendering math:", renderErr);
@@ -135,17 +134,12 @@ createApp({
         }
 
         const showExample = (exampleKey) => {
-            selectedExample.value = examples[exampleKey]; // Вибір прикладу
-            const mathField = document.getElementById('logic-input'); // Отримуємо елемент MathLive
+            selectedExample.value = examples[exampleKey];
+            const mathField = document.getElementById('logic-input');
             if (mathField) {
-                mathField.setValue(selectedExample.value.content); // Вставляємо вміст прикладу в поле
+                mathField.setValue(selectedExample.value.content);
             }
         };
-
-
-        //const toggleExamples = () => {
-        //    showExamples.value = !showExamples.value;
-        //};
 
         const onMathInput = (event) => {
             try {
@@ -189,7 +183,8 @@ createApp({
                     alert(errorMessages.EMPTY_INPUT);
                     return;
                 }
-                console.log("Початок переводу формули:", inputFormula.value);
+                console.log("---------- ПОЧАТОК КОНВЕРТАЦІЇ ----------");
+                console.log("Початокова формула:", inputFormula.value);
 
                 const formulaWithoutDisplayLines = logicInput.value.replace(/\\displaylines\{|\}/g, '');
 
@@ -201,7 +196,7 @@ createApp({
 
                 let lines = formulaWithoutDisplayLines.split(/\\\\/);
                 //console.log(lines);
-                lines.forEach((line, index) => {
+                lines.forEach((line) => {
                     //console.log("Check lines:",line);
                     line = line.trim();
                     inputFormula.value = ''
@@ -309,12 +304,10 @@ createApp({
                 };
 
                 convertToCNF(ast, cnfState);
+
                 console.log("CNF", cnfState.cnfResult);
                 console.log('Full CNF:', JSON.stringify(cnfState.cnfResult, null, 2));
-
-
                 //console.log(steps.value[1].description);
-
             } catch (e) {
                 console.error("Process error:", e);
                 alert(e.message);
@@ -357,8 +350,6 @@ createApp({
             toggleMenu,
             navbar,
             container,
-            //showExamples,
-            //toggleExamples,
             showExample,
             selectedExample,
             openLink,
