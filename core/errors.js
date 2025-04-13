@@ -34,6 +34,7 @@ export const errorMessages = {
     MISSING_CLOSING_PARENTHESIS: "Missing closing parenthesis.",
     MISSING_CLOSING_PARENTHESIS_AFTER_PREDICATE_ARGS: "Missing closing parenthesis after predicate arguments.",
     MISSING_PARENTHESIS_AFTER_ARGS: "Missing closing parenthesis after arguments.",
+    MISSING_OPEN_PARENTHESIS_AFTER_PREDICATE: "Missing opening parenthesis after predicate.",
 
     //HORN CORE ERRORS
     NO_HORN_CLAUSES_ERROR: "A Horn clause can only contain one positive literal.",

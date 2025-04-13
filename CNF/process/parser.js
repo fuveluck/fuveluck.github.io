@@ -166,13 +166,12 @@ function parseAtomicFormula(tokens, state) {
                 };
             }
 
-            //not need use parentheses after negation before quantifier
+            //not need use parentheses after negation before quantifier, if it will be like that it will not find predicate
             if (tokens[state.position] === '\\exists' || tokens[state.position] === '\\forall') {
                 const formula = parseQuantifier(tokens, state);
                 console.log(formula);
                 return formula;
             }
-
             if (/^[A-Z][0-9]*$/.test(tokens[state.position])) {
                 const predicate = tokens[state.position];
                 state.position++;
@@ -207,6 +206,9 @@ function parseAtomicFormula(tokens, state) {
                         name: predicate,
                         args
                     };
+                }
+                else{
+                    throw new Error(errorMessages.MISSING_OPEN_PARENTHESIS_AFTER_PREDICATE);
                 }
                 checkForLogicalConnective(tokens, state);
                 return {
