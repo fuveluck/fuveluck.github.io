@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manual: First-order Logic to Prolog Converter</title>
+    <title>Manual</title>
 
     <!-- MathLive -->
     <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
@@ -13,7 +13,7 @@
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
-    <!-- Your Styles -->
+    <!-- Styles -->
     <link rel="stylesheet" href="../styles/manual_app.css" />
 
 </head>
@@ -57,6 +57,7 @@
                 <li><code>/^[a-r][0-9]*$/</code> Constant symbols, to represent specific objects of domain you can use only lowercase letters from "a" to "r" with numbers after them, for example: <math-field class="static-formula" read-only="true">{b, a1}</math-field></li>
                 <li><code>/^[s-z][0-9]*$/</code> Variable symbols, to represent unknown objects of domain you can use only lowercase letters from "s" to "z" with numbers after them, for example: <math-field class="static-formula" read-only="true">{v, z1}</math-field></li>
                 <li>To represent quantified variables you cannot use parentheses before predicates, for example: <math-field class="static-formula" read-only="true">{\left(\forall x P(x)\right)}</math-field></li>
+                <li>Since the project uses MathLive input field to go to a new line you will need to use special construction (if you would like to paste multiple formulas) or just use <code>Ctrl+Enter<\code>, for example: <math-field class="static-formula" read-only="true">\displaylines{P(a,b)\\ O(a)}</math-field></li>
             </ul>
 
             <p>Examples of input formulae you can find on the <a href="https://fuveluck.github.io/">main page</a> in navigation bar :)</p>

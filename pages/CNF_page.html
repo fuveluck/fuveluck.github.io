@@ -14,8 +14,9 @@
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
-    <!--components-->
+    <!-- Style-->
     <link rel="stylesheet" href="../styles/CNF_app.css" />
+    <!-- JS-->
     <script type="module" src="../CNF/appCNF.js"></script>
 
 </head>
@@ -25,7 +26,6 @@
 <div id="app" class="formula-converter">
     <!--main loop-->
     <div v-if="allSteps.length > 0" class="steps-section">
-        <!--main loop-->
         <h3>Conversion steps</h3>
         <div v-for="(formulaSteps, formulaIndex) in allSteps" :key="formulaIndex" class="formula-block">
             <h4>Formula {{ formulaIndex + 1 }}</h4>

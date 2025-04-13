@@ -26,29 +26,15 @@ createApp({
         const navbar = ref(null);
         const container = ref(null);
 
-        const replaceSymbols = (input) => {
-            return input
-                .replace(/\s+/g, '')
-                .replace(/\\neg/g, '¬')
-                .replace(/\\forall/g, '∀')
-                .replace(/\\exists/g, '∃')
-                .replace(/\\Rightarrow/g, '⇒')
-                .replace(/\\land/g, '∧')
-                .replace(/\\lor/g, '∨')
-                .replace(/\\top/g, '⊤')
-                .replace(/\\bot/g, '⊥')
-                .replace(/([A-Z])/g, ' $1');
-        };
-
         onMounted(() => {
             try {
                 import("//unpkg.com/mathlive?module").then((mathlive) => {
                     const mf = document.getElementById('logic-input');
-                    mf.mathVirtualKeyboardPolicy = 'manual';
-                   try {
+                    MathfieldElement.soundsDirectory = null;
+                    try {
                         mathlive.renderMathInDocument();
-                    } catch (renderErr) {
-                        console.error("Error rendering math:", renderErr);
+                    } catch (err) {
+                        console.error("Error rendering math:", err);
                         alert(errorMessages.MATHLIVE_RENDER_ERROR);
                     }
                 }).catch(err => {
@@ -77,6 +63,41 @@ createApp({
                 alert(errorMessages.MOUNT_ERROR);
             }
         });
+
+        const clearInput = () => {
+            try {
+                logicInput.value = '';
+                prologOutput.value = '';
+
+                const mathField = document.getElementById('logic-input');
+                if (mathField) {
+                    mathField.setValue('');
+                    const moveCursorToEnd = () => {
+                        for (let i = 0; i < 50; i++) {
+                            mathField.executeCommand('moveToNextChar');
+                        }
+                    };
+                    moveCursorToEnd();
+                    const deleteCharByChar = () => {
+                        const newvalue = mathField.getValue();
+                        if (!newvalue || newvalue === '\\displaylines{}') {
+                            return;
+                        }
+                        mathField.executeCommand('deleteBackward');
+                        setTimeout(deleteCharByChar, 50);
+                    };
+                    deleteCharByChar();
+                    console.log(mathField.value);
+                }
+                else {
+                    console.error("Math field not found in clearInput");
+                    alert(errorMessages.MATH_FIELD_NOT_FOUND_CLEAR);
+                }
+            } catch (err) {
+                console.error("Error clearing input:", err);
+                alert(errorMessages.CLEAR_INPUT_ERROR);
+            }
+        };
 
         const insertSymbol = (symbol) => {
             try {
@@ -171,7 +192,6 @@ createApp({
                 const mathField = document.getElementById('logic-input');
                 if (mathField) {
                     const directValue = mathField.value;
-                    //console.log("Метод 5 (у checkAndConvert):", directValue);
                     logicInput.value = directValue;
                 } else {
                     console.error("Math field не знайдено в checkAndConvert!");
@@ -197,20 +217,25 @@ createApp({
                 let lines = formulaWithoutDisplayLines.split(/\\\\/);
                 //console.log(lines);
                 lines.forEach((line) => {
-                    //console.log("Check lines:",line);
+                    console.log("Check lines:",line);
                     line = line.trim();
                     inputFormula.value = ''
                     if (line !== '') {
-                        inputFormula.value = replaceSymbols(line);
-                        //console.log("Formula with special symbols", inputFormula.value);
+                        //maybe better with = !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                        inputFormula.value += line
+                            .replace(/(?<!\\)([A-Z])/g, ' $1')
+                            .replace(/\\left\(/g, '(')
+                            .replace(/\\right\)/g, ')')
+                        //inputFormula.value = replaceSymbols(line);
+                        console.log("Formula with special symbols", inputFormula.value);
                         parseAndConvert();
-                        console.log("CNF formula",cnfResult.value);
+                        //console.log("CNF formula",cnfResult.value);
                         cnfFormulas.value.push({
                             original: line,
                             steps: [...steps.value],
                             cnf: cnfResult.value
                         });
-                        console.log("What will be send",cnfFormulas);
+                        //console.log("What will be send",cnfFormulas);
                         try {
                             const prologProgram = {
                                 facts,
@@ -218,7 +243,7 @@ createApp({
                                 queries
                             }
                             convertLogicToHorn(cnfResult, prologProgram);
-                            console.log("Your formula be in Prolog:",[facts.value, hrules.value, queries.value.join('\n')]);
+                            //console.log("Your formula be in Prolog:",[facts.value, hrules.value, queries.value.join('\n')]);
                         } catch (err) {
                             console.error('Conversion error (Horn):', err);
                             alert(errorMessages.HORN_CONVERSION_ERROR);
@@ -230,7 +255,7 @@ createApp({
                     facts.value.join('\n'),
                     hrules.value.join('\n'),
                     queries.value.join('\n')
-                ].join('\n');
+                ].filter(item => item !== '').join('\n');
                 console.log("Result of all formul be processed", result);
                 prologOutput.value = result;
                 console.log("---------- КІНЕЦЬ КОНВЕРТАЦІЇ ----------");
@@ -238,25 +263,6 @@ createApp({
                 console.error('General conversion error:', err);
                 alert(errorMessages.CONVERSION_ERROR);
                 prologOutput.value = 'Error in conversion. Please check your input syntax.';
-            }
-        };
-
-        const clearInput = () => {
-            try {
-                logicInput.value = '';
-                prologOutput.value = '';
-
-                const mathField = document.getElementById('logic-input');
-                if (mathField) {
-                    mathField.setValue('');
-                    mathField.focus();
-                } else {
-                    console.error("Math field not found in clearInput");
-                    alert(errorMessages.MATH_FIELD_NOT_FOUND_CLEAR);
-                }
-            } catch (err) {
-                console.error("Error clearing input:", err);
-                alert(errorMessages.CLEAR_INPUT_ERROR);
             }
         };
 
