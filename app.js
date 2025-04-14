@@ -25,11 +25,26 @@ createApp({
         const selectedExample = ref(null);
         const navbar = ref(null);
         const container = ref(null);
+        const loading = ref(null);
+        const loaded = ref(null);
+
+
+        const logicSymbols = ref([
+            { display: '\\Rightarrow', latex: '\\Rightarrow' },
+            { display: '\\land', latex: '\\land' },
+            { display: '\\lor', latex: '\\lor' },
+            { display: '\\neg', latex: '\\neg' },
+            { display: '\\exists', latex: '\\exists' },
+            { display: '\\forall', latex: '\\forall' },
+            { display: '\\top', latex: '\\top' },
+            { display: '\\bot', latex: '\\bot' },
+            { display: '( )', latex: '( )' }
+        ]);
+
 
         onMounted(() => {
             try {
                 import("//unpkg.com/mathlive?module").then((mathlive) => {
-                    const mf = document.getElementById('logic-input');
                     MathfieldElement.soundsDirectory = null;
                     try {
                         mathlive.renderMathInDocument();
@@ -44,13 +59,12 @@ createApp({
 
                 setTimeout(() => {
                     try {
-                        const loadingEl = document.getElementById('loading');
-                        const appEl = document.getElementById('app');
-
-                        if (loadingEl) loadingEl.style.display = 'none';
-                        if (appEl) appEl.style.visibility = 'visible';
-                    } catch (visibilityErr) {
-                        console.error("Error changing visibility:", visibilityErr);
+                        //console.log("loading:", loading.value);
+                        //console.log("loaded:", loaded.value);
+                        if (loading.value) loading.value.style.display = 'none';
+                        if (loaded.value) loaded.value.style.visibility = 'visible';
+                    } catch (err) {
+                        console.error("Error changing visibility:", err);
                         alert(errorMessages.VISIBILITY_ERROR);
                     }
                 }, 300);
@@ -58,8 +72,8 @@ createApp({
                 window.addEventListener('click', handleOutsideClick);
                 adjustContainerPadding();
                 window.addEventListener('resize', adjustContainerPadding);
-            } catch (mountErr) {
-                console.error("Error during mount:", mountErr);
+            } catch (err) {
+                console.error("Error during mount:", err);
                 alert(errorMessages.MOUNT_ERROR);
             }
         });
@@ -149,9 +163,9 @@ createApp({
             try{
                 window.location.href = 'pages/manual_page.html';
             } catch (err) {
-            console.error("Error navigating to CNF page:", err);
-            alert(errorMessages.MANUAL_ERROR);
-        }
+                console.error("Error navigating to CNF page:", err);
+                alert(errorMessages.MANUAL_ERROR);
+            }
         }
 
         const showExample = (exampleKey) => {
@@ -199,7 +213,7 @@ createApp({
                     return;
                 }
 
-                if (!logicInput.value.trim()) {
+                if (!logicInput.value.trim() || logicInput.value.trim() === '\\displaylines{}') {
                     alert(errorMessages.EMPTY_INPUT);
                     return;
                 }
@@ -287,8 +301,8 @@ createApp({
 
         const parseAndConvert = () => {
 
-                steps.value = [];
-                cnfResult.value = '';
+            steps.value = [];
+            cnfResult.value = '';
             try {
                 console.log('Formula Changed:', inputFormula.value);
                 tokens.value = tokenize(inputFormula.value);
@@ -370,6 +384,9 @@ createApp({
             inputFormula,
             steps,
             cnfResult,
+            logicSymbols,
+            loading,
+            loaded
         };
     }
 }).mount('#app');
