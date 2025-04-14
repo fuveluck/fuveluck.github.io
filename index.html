@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>First-order Logic to Prolog Converter</title>
 
-    <!-- MathLive -->
-    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.core.css">
-    <link rel="stylesheet" href="https://unpkg.com/mathlive/dist/mathlive.css">
-    <script src="https://unpkg.com/mathlive"></script>
-
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
@@ -18,64 +13,65 @@
     <script type="module" src="app.js"></script>
 </head>
 <body>
-<div id="loading">Loading MathLive...</div>
-<div id="app" style="visibility: hidden;">
-    <div ref="navbar" class="navbar">
-        <div class="hamburger-menu" @click="toggleMenu"></div>
-        <div class="nav-links" :class="{ active: menuActive }">
-            <button class="nav-button" @click="openLink">Feedback</button>
-            <button class="nav-button" @click="goToManual">Manual</button>
-            <button class="nav-button" @click="goToCNF">CNF</button>
-            <button class="nav-button" @click="showExample('Example1')">Example1</button>
-            <button class="nav-button" @click="showExample('Example2')">Example2</button>
-            <button class="nav-button" @click="showExample('Example3')">Example3</button>
-            <div class="close-button" @click="toggleMenu"></div>
-        </div>
-    </div>
-    <div ref="container" class="container">
-        <h1>Convector from First-order Logic to Prolog</h1>
-        <div class="input-section">
-            <div class="label-container">
-                <label>Input for your first-order logic program</label>
-                <div class="info-icon" data-tooltip="Please refrain from pasting text that is not formatted with LaTeX-supported symbols above. It may cause issues."></div>
-            </div>
-            <div class="logic-buttons">
-                <button class="logic-button" @click="insertSymbol('\\Rightarrow')">\(\mathbf{\Rightarrow}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\land')">\(\mathbf{\land}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\lor')">\(\mathbf{\lor}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\neg')">\(\mathbf{\neg}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\exists')">\(\mathbf{\exists}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\forall')">\(\mathbf{\forall}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\top')">\(\mathbf{\top}\)</button>
-                <button class="logic-button" @click="insertSymbol('\\bot')">\(\mathbf{\bot}\)</button>
-                <button class="logic-button" @click="insertSymbol('( )')">( )</button>
-            </div>
-            <math-field
-                    id="logic-input"
-                    class="input-textarea"
-                    @input="onMathInput"
-                    multiline="true"
-            ></math-field>
-            <div class="button-container">
-                <button class="convert-button" @click="checkAndConvert">Convert</button>
-                <button class="clear-button" @click="clearInput">Clear</button>
+<div id="app">
+
+    <div ref="loading" id="loading">Loading MathLive...</div>
+    <div ref="loaded" style="visibility: hidden;">
+        <div ref="navbar" class="navbar">
+            <div class="hamburger-menu" @click="toggleMenu"></div>
+            <div class="nav-links" :class="{ active: menuActive }">
+                <button class="nav-button" @click="openLink">Feedback</button>
+                <button class="nav-button" @click="goToManual">Manual</button>
+                <button class="nav-button" @click="goToCNF">CNF</button>
+                <button class="nav-button" @click="showExample('Example1')">Example1</button>
+                <button class="nav-button" @click="showExample('Example2')">Example2</button>
+                <button class="nav-button" @click="showExample('Example3')">Example3</button>
+                <div class="close-button" @click="toggleMenu"></div>
             </div>
         </div>
-        <div class="output-section">
-            <div class="label-container">
-                <label>Output as Prolog program</label>
-                <div class="info-icon" data-tooltip="You can copy the program with the button on the right side."></div>
+        <div ref="container" class="container">
+            <h1>Converter from First-order Logic to Prolog</h1>
+            <div class="input-section">
+                <div class="label-container">
+                    <label>Input for your first-order logic program</label>
+                    <div class="info-icon" data-tooltip="Please refrain from pasting text that is not formatted with LaTeX-supported symbols above. It may cause issues."></div>
+                </div>
+                <div class="logic-buttons">
+                    <button
+                            v-for="symbol in logicSymbols"
+                            :key="symbol.latex"
+                            class="logic-button"
+                            @click="insertSymbol(symbol.latex)"
+                            v-html="`\\(\\mathbf{${symbol.display}}\\)`"
+                    ></button>
+                </div>
+                <math-field
+                        id="logic-input"
+                        class="input-textarea"
+                        @input="onMathInput"
+                        multiline="true"
+                ></math-field>
+                <div class="button-container">
+                    <button class="convert-button" @click="checkAndConvert">Convert</button>
+                    <button class="clear-button" @click="clearInput">Clear</button>
+                </div>
             </div>
-            <div class="output-textarea-container">
-                <textarea class="output-textarea" v-model="prologOutput" readonly></textarea>
-                <button class="copy-button" @click="copyToClipboard"></button>
+            <div class="output-section">
+                <div class="label-container">
+                    <label>Output as Prolog program</label>
+                    <div class="info-icon" data-tooltip="You can copy the program with the button on the right side."></div>
+                </div>
+                <div class="output-textarea-container">
+                    <textarea class="output-textarea" v-model="prologOutput" readonly></textarea>
+                    <button class="copy-button" @click="copyToClipboard"></button>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="footer">
-        <p>Author: <a href="https://github.com/fuveluck">fuveluck</a> <br />
-            <a href="mailto:anastasiia.muzhychuk@gmail.com">anastasiia.muzhychuk@gmail.com</a>
-        </p>
+        <div class="footer">
+            <p>Author: <a href="https://github.com/fuveluck">fuveluck</a> <br />
+                <a href="mailto:anastasiia.muzhychuk@gmail.com">anastasiia.muzhychuk@gmail.com</a>
+            </p>
+        </div>
     </div>
 </div>
 </body>
