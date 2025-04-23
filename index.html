@@ -14,7 +14,6 @@
 </head>
 <body>
 <div id="app">
-
     <div ref="loading" id="loading">Loading MathLive...</div>
     <div ref="loaded" style="visibility: hidden;">
         <div ref="navbar" class="navbar">
@@ -46,6 +45,7 @@
                     ></button>
                 </div>
                 <math-field
+                        ref="mathField"
                         id="logic-input"
                         class="input-textarea"
                         @input="onMathInput"
