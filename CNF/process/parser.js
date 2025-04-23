@@ -24,7 +24,7 @@ export function parseFormula(tokens, usedSkolemNames){
             console.error("Parse error:", e.message);
             throw e;
         }
-        else if (e.code && errorMessages[e.code]) {
+        else if (e.code && e.details) {
             console.error(`Parse error (${e.code}):`, e.details);
             throw new Error(getErrorMessage(e.code, e.details));
         }
@@ -232,7 +232,7 @@ function parseAtomicFormula(tokens, state, usedSkolemNames) {
             console.error("Parse error:", e.message);
             throw e;
         }
-        else if (e.code && errorMessages[e.code]) {
+        else if (e.code && e.details) {
             console.error(`Parse error (${e.code}):`, e.details);
             throw new Error(getErrorMessage(e.code, e.details));
         }
@@ -310,7 +310,7 @@ function parseTerm(tokens, state, usedSkolemNames) {
             console.error("Parse error:", e.message);
             throw e;
         }
-        else if (e.code && errorMessages[e.code]) {
+        else if (e.code && e.details) {
             console.error(`Parse error (${e.code}):`, e.details);
             throw new Error(getErrorMessage(e.code, e.details));
         }
@@ -337,7 +337,7 @@ function checkForLogicalConnective(tokens, state) {
             }
         }
     }catch (e) {
-        if (e.code && errorMessages[e.code]) {
+        if (e.code && e.details) {
             console.error(`Parse error (${e.code}):`, e.details);
             throw new Error(getErrorMessage(e.code, e.details));
         }
